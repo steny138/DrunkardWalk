@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>醉漢走路</title>
+    <style>
+        pre {
+            display: block;
+            padding: 9px;
+            margin: 0 0 10px;
+            font-size: 12px;
+            line-height: 1.42857143;
+            color: #333;
+            word-break: break-all;
+            word-wrap: break-word;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 900px;
+        }
+    </style>
+</head>
+
+<body>
+    <pre style="font-size:medium;">
+The Drunkard’s Walk
+
+醉漢走路(Drunkard’s Walk)是一個數學名詞(用在物理與統計) 
+指的是一種不規則的變動軌跡 
+在行動時，每一步的變化會以隨機的形式出現，就好像酒後亂步一樣
+
+現實世界發生的許多事，都是隨機的，就像浮游在液體中的花粉微粒， 
+會不斷的讓一個接著一個的隨機事件推向東、推向西；  
+各種出乎意外的事件遲早會發生，但終歸會到達某個位置── 
+這正是「醉漢走路」這個模型代表的涵義。
+    </pre>
+    <div>
+        <button id="execute" type="button" name="execute" value="執行" onclick="drawer.restart();">執行</button>
+        <span>醉漢走過幾個十字路口: </span><span id="description"></span>
+    </div>
+    <canvas id="canvas" width="800" height="600"></canvas>
+   
+    <script type="text/javascript">
+        var drawer = {};
+        (function() { // Begin scoping function
+            var Drawer = function(){
+                var canvas = document.getElementById('canvas');
+                var interval = 10;
+                var outOfBound = false;
+                var move = [
+                    [0, 1],
+                    [0, -1],
+                    [1, 0],
+                    [-1, 0]
+                ];
+
+                var __initImage = function(canvas, interval) {
+                    var width = canvas.width;
+                    var height = canvas.height;
+                    __clearImage(canvas)
+
+                    if (canvas.getContext) {
+                        var ctx = canvas.getContext('2d');
+
+                        // Stroked triangle
+                        ctx.beginPath();
+                        ctx.moveTo(0, 0);
+                        ctx.strokeStyle = '#dddddd';
+                        for (var x = 0; x <= width; x += interval) {
+                            ctx.moveTo(x, 0);
+                            ctx.lineTo(x, height);
+                            ctx.stroke();
+                        }
+
+                        for (var y = 0; y <= height; y += interval) {
+                            ctx.moveTo(0, y);
+                            ctx.lineTo(width, y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                var __clearImage = function(canvas) {
+                    var context = canvas.getContext('2d');
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    context.restore();
+                }
+
+                var __draw = function(canvas, origin, next) {
+                    if (canvas.getContext) {
+                        var ctx = canvas.getContext('2d');
+
+                        // Stroked triangle
+                        ctx.beginPath();
+                        ctx.moveTo(origin.x, origin.y);
+                        ctx.lineTo(next.x, next.y);
+                        ctx.strokeStyle = '#000000';
+                        ctx.stroke();
+                    }
+                }
+
+                var __getRandom = function() {
+                    var maxNum = 3;
+                    var minNum = 0;
+                    var n = Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum;
+                    return n;
+                }
+
+                this.start = {};
+                this.restart = function (){
+                    __initImage(canvas, interval);
+                    this.start = {
+                        x: 100,
+                        y: 100
+                    };
+                    outOfBound = false;
+                    var count = 0;
+                    while (!outOfBound) {
+                        var displacement = move[__getRandom()];
+                        var next = {};
+
+                        next.x = this.start.x + displacement[0] * interval;
+                        next.y = this.start.y + displacement[1] * interval;
+
+                        if (next.x < 0 ||
+                            next.x > canvas.width ||
+                            next.y < 0 ||
+                            next.y > canvas.height) {
+                            outOfBound = true;
+                        }
+
+                        if (!outOfBound) {
+                            __draw(canvas, this.start, next);
+                            this.start = next;
+                        }
+                        count++;
+                    }
+                    var d = document.getElementById('description');
+                    d.innerText = count.toString();
+                }
+            };
+
+            drawer = new Drawer();
+
+            drawer.restart();
+        })(); 
+            
+    </script>
+</body>
+
+</html>
